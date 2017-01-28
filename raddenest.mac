@@ -885,7 +885,7 @@ _denester(nested,av0,h,max_depth_level):= block(
                     av0[2]: false,
                     return([false,false])
                 ),
-                sqvad: _sqrtdenest1(sqrt(vad), denester:false),
+                sqvad: _sqrtdenest1(sqrt(vad), false),
                 if not (_sqrt_depth(sqvad) <= _sqrt_depth(R)+1) then (
                     av0[2]: false,
                     return([false,false])
