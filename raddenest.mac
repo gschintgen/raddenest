@@ -909,14 +909,14 @@ _denester(nested,av0,h,max_depth_level):= block(
 
 _cardano_poly(n,c,x):=
 /*  "Cardano" polynomials as defined in [3] */
-    if n=1 then x
-    elseif n=2 then x^2-2*c
-    else expand(x*_cardano_poly(n-1,c,x)-c*_cardano_poly(n-2,c,x))$
+    if n=1 then 'x
+    elseif n=2 then 'x^2-2*c
+    else expand('x*_cardano_poly(n-1,c,'x)-c*_cardano_poly(n-2,c,'x))$
 
 _rad_denest_cardano(expr):= block(
 /*  Denests expr=(a+b*sqrt(r))^(m/n) using
     Cardano polynomials. See [3] for details. */
-    [a,b,r,m,n,divs,d,c,eq,s,em,res,sig,
+    [a,b,r,m,n,divs,d,c,eq,s,em,res,sig,x,
         ratprint:false, ratepsilon: 2e-10],
     [a,b,r]: _sqrt_match(args(expr)[1]),
     m: num(args(expr)[2]),
