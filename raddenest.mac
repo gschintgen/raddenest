@@ -202,29 +202,20 @@ _sqrtcontract0(prod):= block(
 )$
 _sqrtcontract(expr):= scanmap('_sqrtcontract0,expr)$
 
-_subsets(n):= block(
-/*  Returns all possible subsets of the set (0, 1, ..., n-1) except the
+
+/*  _subsets(n)
+    Returns all possible subsets of the set (0, 1, ..., n-1) except the
     empty set, listed in reversed lexicographical order according to binary
     representation, so that the case of the fourth root is treated last.
+    Example:
+    (%i1)   _subsets(3);
+    (%o2)   [[1,0,0],[0,1,0],[1,1,0],[0,0,1],[1,0,1],[0,1,1],[1,1,1]]
 */
-    [a,b,a0,a1,a001],
-    if n=1 then
-        a: [[1]]
-    elseif n=2 then
-        a: [[1,0], [0,1], [1,1]]
-    elseif n=3 then
-        a: [[1,0,0], [0,1,0], [1,1,0],
-            [0,0,1], [1,0,1], [0,1,1], [1,1,1]]
-    else (
-        b: _subsets(n-1),
-        a0: makelist(endcons(0,x),x,b),
-        a1: makelist(endcons(1,x),x,b),
-        a001: makelist(0,i,1,n-1),
-        a001: endcons(1,a001),
-        a: append(a0,[a001],a1)
-    ),
-    return(a)
-)$
+_ss(n):= if n=1 then [[0],[1]] else
+    block([r:_ss(n-1)],
+        apply('append, map(lambda([z], [cons(0,z),cons(1,z)]),r)));
+_subsets(n):=rest(_ss(n));
+
 
 _splitcoef(p):= block(
 /*  Splits a given term p in two factors:
