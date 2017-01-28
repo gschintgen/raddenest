@@ -279,7 +279,7 @@ _sqrt_match(p):=block(
         nmax:v[1],
         for da in v do (
             if  da[1]>nmax[1] 
-                or (da[1]=nmax[1] and da[2]>nmax[2])
+                or (da[1]=nmax[1] and ordergreatp(da[2],nmax[2]))
             then nmax:da
         ),
         if nmax[1]=0 then res:false
