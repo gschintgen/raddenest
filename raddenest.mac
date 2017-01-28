@@ -593,13 +593,27 @@ _sqrt_symbolic_denest(a,b,r):= block(
     expression or false.
 
     Algorithm 1:
-    Check if a+b*sqrt(r) is a perfect square.
+    Check if the standard denesting formula with d2=a^2-b^2*r
+    can the applied, i.e. check if d2=a^2-b^2*r is a square.
+    For a+b*sqrt(r) = (c+d*sqrt(r))^2, a=c^2+b^2*r and
+    a^2-b^2*r = d^4*r^2-2*c*d^2*r+c^4, quadratic in r.
+    -> Compute the discriminant.
+    a and r must be positive; hence denesting depends on the
+    facts database.
 
-    Algorithm 2:
+    Algorithm 2 (Sympy):
     If r = ra + rb*sqrt(rr), try replacing sqrt(rr) in 'a' with
     (y^2 - ra)/rb, and if the result is a quadratic, ca*y^2 + cb*y + cc, and
     (cb + b)^2 - 4*ca*cc is 0, then sqrt(a + b*sqrt(r)) can be rewritten as
     sqrt(ca*(sqrt(r) + (cb + b)/(2*ca))^2).
+
+    Examples (alg. 1):
+    ==================
+    (%i2) raddenest(sqrt(9*y+6*x^2*sqrt(y)+x^4));
+    (%o2)                    sqrt(9*y + 6*x^2  sqrt(y) + x^4)
+    (%i3) assume(y>0)$
+    (%i4) raddenest(sqrt(9*y+6*x^2*sqrt(y)+x^4));
+    (%o4)                           3* sqrt(y) + x^2
 
     Examples (alg. 2):
     ==================
@@ -621,51 +635,59 @@ _sqrt_symbolic_denest(a,b,r):= block(
     (%i6)   w: sqrt(expand((sqrt(1-sqrt(x))-1)^2));
     (%o6)   sqrt(-sqrt(x)-2*sqrt(1-sqrt(x))+2)
     (%i7)   [a,b,r]: _sqrt_match(w^2)$
-    (%i8)   _sqrt_symbolic_denest(a,b,r), domain=real;
+    (%i8)   _sqrt_symbolic_denest(a,b,r), domain:'real;
     (%o8)   abs(sqrt(1-sqrt(x))-1)
-    (%i9)   _sqrt_symbolic_denest(a,b,r), domain=complex;
+    (%i9)   _sqrt_symbolic_denest(a,b,r), domain:'complex;
     (%o9)   sqrt((sqrt(1-sqrt(x))-1)^2)
 */
-    [algebraic:true, rval,ra,rb,rr,y,newa,ca,cb,cc,z,cont,d2,d,s],
-    d2: expand(a^2-b^2*r), /* interpret as polynomial in variable r */
-    newa: ratsubst(y,r,d2),
-    if hipow(newa,y)=2 then (
-        [ca,cb,cc]: [ratcoef(newa,y,2),ratcoef(newa,y,1),ratcoef(newa,y,0)],
+    [algebraic:true, rval,ra,rb,rr,y,newd2,newa,ca,cb,cc,z,cont,d2,d,s],
+    supcontext(cont),
+    y: gensym(),
+    assume(y>0),
+    /* make sure a and r are positive */
+    if not (is(r>=0)=true and is(ratsubst(y,r,a)>=0)=true)
+        then go(tryalg2),
+    d2: ratsubst(y,r,a^2-b^2*r),
+    if hipow(d2,y)=2 then (
+        [ca,cb,cc]: [ratcoef(d2,y,2),ratcoef(d2,y,1),ratcoef(d2,y,0)],
         if is(equal(cb^2-4*ca*cc,0)) then (
-            newcontext(cont),
+            /* Discriminant is 0, polynomial d2 can be factored
+               as a perfect square. Extract a sqrt. */
+            d: ratsimp(sqrt(ca)*(r+cb/(2*ca))),
+            /* If b is of constant sign (>=0 or <=0), a denesting
+            should not be rejected simply because b could be zero
+            for isolated values of the involved variables. */
             assume(not equal(b,0)),
             s: signum(b),
-            d: ratsimp(sqrt(ca)*(r+cb/(2*ca))),
-            if not (integerp(s) and s#0 and ratnump(sqrt(ca))) then (
-                    killcontext(cont),
-                    go(trynested)
-            ),
-            z: sqrt((a/2+d/2))+signum(b)*sqrt((a/2-d/2)),
+            if not (integerp(s) and s#0 and ratnump(sqrt(ca)))
+                then go(tryalg2),
+            z: sqrt(a/2+d/2)+signum(b)*sqrt(a/2-d/2),
             z: ratsimp(z),
             killcontext(cont),
             return(sqrt(z^2))
         )
     ),
-    trynested,
+    tryalg2,
     rval: _sqrt_match(r),
-    if rval=false then return(false),
+    if rval=false then (
+        killcontext(cont),
+        return(false)
+    ),
     [ra,rb,rr]: rval,
     if rb#0 then (
-        newcontext(cont),
-        assume(y>0),
         newa: subst((y^2-ra)/rb,sqrt(rr),a),
         if hipow(newa,y)=2 then (
             [ca,cb,cc]: [ratcoef(newa,y,2),ratcoef(newa,y,1),ratcoef(newa,y,0)],
             cb: cb+b,
-            if is(equal(cb^2-4*ca*cc,0)) then (
+            if is(equal(cb^2-4*ca*cc,0))=true then (
                 z: sqrt(ca*(sqrt(r)+cb/(2*ca))^2),
                 if constantp(z) then z: rootscontract(expand(z)),
                 killcontext(cont),
                 return(z)
             )
-        ),
-        killcontext(cont)
+        )
     ),
+    killcontext(cont),
     return(false)
 )$
 

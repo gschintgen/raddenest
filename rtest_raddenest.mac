@@ -140,7 +140,7 @@ sqrt(sqrt(sqrt(3)+1)+1)+sqrt(2)+1$
 _sqrt_symbolic_denest(a,b,r));
 abs(sqrt(1-sqrt(x))-1)$
 
-block([domain:complex],
+block([domain:'complex],
 w: sqrt(expand((sqrt(1-sqrt(x))-1)^2)),
 [a,b,r]: _sqrt_match(w^2),
 _sqrt_symbolic_denest(a,b,r));
@@ -431,13 +431,14 @@ raddenest((375308427136/390625-(9950503296*sqrt(29))/78125)^(1/8));
 
 /* additional symbolic capabalities */
 
-raddenest(sqrt(9*y+6*x^2*sqrt(y)+x^4));
+(assume(y>0),raddenest(sqrt(9*y+6*x^2*sqrt(y)+x^4)));
 3*sqrt(y)+x^2$
 
-raddenest(sqrt(-4*log(3)*sqrt(3*x+sqrt(3))+12*x+log(3)^2+4*sqrt(3)));
+(assume(x>0),
+raddenest(sqrt(-4*log(3)*sqrt(3*x+sqrt(3))+12*x+log(3)^2+4*sqrt(3))));
 abs(sqrt(12*x+4*sqrt(3))-log(3))$
 
-block([domain:'complex],
+block([domain:'complex],assume(x>0),
 raddenest(sqrt(-4*log(3)*sqrt(3*x+sqrt(3))+12*x+log(3)^2+4*sqrt(3))));
 sqrt((sqrt(4*sqrt(3)+12*x)-log(3))^2)$
 
