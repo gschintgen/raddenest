@@ -368,7 +368,7 @@ _split_surds(expr):= block(
     (%i1)   _split_surds(3*sqrt(3)+sqrt(5)/7+sqrt(6)+sqrt(10)+sqrt(15))
     (%o1)   [3, sqrt(2) + sqrt(5) + 3, sqrt(5)/7 + sqrt(10)]
 */
-    [inflag:false,ar,coeff_muls,surds:[],g,b1,b2,g2,g1,b1n:[],g2,c,s,s1,a1v:[],a2v:[],a,b],
+    [inflag:false,ar,coeff_muls,surds:[],g,b1,b2,g2,g1,b1n:[],c,s,s1,a1v:[],a2v:[],a,b],
     ar: args(rootscontract(expr)),
     coeff_muls: maplist('_splitcoef,ar),
     for cs in coeff_muls do
