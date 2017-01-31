@@ -144,7 +144,7 @@ block([domain:'complex],
 w: sqrt(expand((sqrt(1-sqrt(x))-1)^2)),
 [a,b,r]: _sqrt_match(w^2),
 _sqrt_symbolic_denest(a,b,r));
-sqrt((sqrt(1-sqrt(x))-1)^2)$
+''(block([domain:'complex], sqrt((sqrt(1-sqrt(x))-1)^2)))$
 
 /* biquadratic denesting with sqrt(a/2 + sqd/2) */
 (rad: -sqrt(15) - sqrt(2)*sqrt(-sqrt(5) + 5) - sqrt(3) + 8,
