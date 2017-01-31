@@ -157,7 +157,7 @@ _algebraicp(p):=block(
 )$
 
 _sqrt_depth(p):=block(
-/*  Returns the maximum depth of any square root argument of p,
+/*  Returns the maximum nesting depth of any square root argument of p,
     where p is an algebraic expression as defined by _algebraicp.
 
     Neither of these square roots contains any other square roots
@@ -174,6 +174,28 @@ _sqrt_depth(p):=block(
         then apply('max,maplist('_sqrt_depth,p))
     elseif _sqrtpowerp(p)
         then _sqrt_depth(args(p)[1])+1
+    else 0
+)$
+
+_complexity(p):=block(
+/*  Returns a complexity measure of a given expression p.
+    It's similar to _sqrt_depth but increases with any nesting
+    of radicals (not only square roots) and penalize sums
+    of radicals by adding up individual complexities.
+    See [2] for more details.
+    It is used as a secondary recursion termination criterion
+    (after _sqrt_depth) in some algorithms.
+*/
+    [inflag:true,e],
+    if atom(p) or ratnump(p) then return(0)
+    elseif (op(p)="+")
+        then map('_complexity,p)
+    elseif (op(p)="*")
+        then apply('max,maplist('_complexity,p))
+    elseif op(p)="^"
+        and ratnump(e:args(p)[2])
+        and denom(e)#1
+        then _complexity(args(p)[1])+1
     else 0
 )$
 
@@ -519,11 +541,9 @@ _sqrtdenest_rec(expr):= block(
     if _sqrt_depth(c)>1 then
         throw("raddenestStopIteration"),
     ac: rootscontract(a+c),
-    /* check for end of recursion;
-        replaced sympy's count_op measure by simple string
-        length. */
+    /* check for end of recursion */
     if not atom(ac) and length(args(ac)) >= length(args(expr))
-        and slength(string(ac)) >= slength(string(args(expr)[1]))
+        and _complexity(ac)>=_complexity(args(expr)[1])
             then throw("raddenestStopIteration"),
     d: raddenest(sqrt(ac)),
     if _sqrt_depth(d) > 1
@@ -579,9 +599,8 @@ _sqrtdenest1(expr, denester):= block(
     /* denester has side-effect on av0! */
     if av0[2]=false then return(expr),
     if z#false then (
-        /* note: sympy uses "count_ops" instead of string length */
         if _sqrt_depth(z)=_sqrt_depth(expr)
-            and slength(string(z)) >= slength(string(expr))
+            and _complexity(z)>=_complexity(expr)
                 then return(expr)
         else return(z)
     ),
