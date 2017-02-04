@@ -445,3 +445,7 @@ block([domain:'complex],assume(x>0),
 raddenest(sqrt(-4*log(3)*sqrt(3*x+sqrt(3))+12*x+log(3)^2+4*sqrt(3))));
 sqrt((sqrt(4*sqrt(3)+12*x)-log(3))^2)$
 
+/* clean up */
+(forget(x>0,y>0),kill(w,a,b,r,rad,z,d2,e,n,d,ra),'done);
+'done$
+
