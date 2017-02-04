@@ -966,8 +966,8 @@ _cardano_poly(n,c,x):= block(
 _rad_denest_cardano(expr):= block(
 /*  Denests expr=(a+b*sqrt(r))^(m/n) using
     Cardano polynomials. See [3] for details. */
-    [a,b,r,m,n,divs,d,c,eq,s,em,res,sig,x,
-        ratprint:false, ratepsilon: 2e-10],
+    [a,b,r,m,n,divs,d,c,p,s,em,res,sig,x,
+        ratprint:false,bftorat:false,fpprec:50,ratepsilon:1e-40],
     [a,b,r]: _sqrt_match(args(expr)[1]),
     m: num(args(expr)[2]),
     n: denom(args(expr)[2]),
@@ -980,10 +980,16 @@ _rad_denest_cardano(expr):= block(
         d: pop(divs),
         c:(a^2-b)^(1/d),
         if ratnump(c) then (
-            /* check if s is a rational root of the polynomial */
-            eq: _cardano_poly(d,c,x)=2*a,
-            s: rat(float((a+sqrt(b))^(1/d)+(a-sqrt(b))^(1/d))),
-            if subst(s,x,eq) then
+            /* expr can be denested if p has a rational root
+               equal to s. In order to avoid excessive numeric
+               evaluations of the polynomial a single rational
+               candidate is checked. This candidate is a rational
+               approximation of s. The given values for fpprec
+               and ratepsilon are heuristic in nature. */
+            p: _cardano_poly(d,c,x)-2*a,
+            p: horner(p*denom(p)),
+            s: rat(bfloat((a+sqrt(b))^(1/d)+(a-sqrt(b))^(1/d))),
+            if subst(s,x,p)=0 then
                 return(ratsimp((s+sig*sqrt(s^2-4*c))/2)^(d/n))
         )
     ),
