@@ -95,6 +95,9 @@ _splitcoef(sqrt(7^3)*2);
 _splitcoef(-5^(7/2)*sqrt(3)^21);
 [-7381125, sqrt(15)]$
 
+_splitcoef(sqrt(11)/7^(5/2));
+[1/343,sqrt(77)]$
+
 _sqrt_match((2*sqrt(2) + 4)*sqrt(2 + sqrt(2)) + 5*sqrt(2) + 8);
 [5*sqrt(2)+8,2^(3/2)+4,sqrt(2)+2]$
 

@@ -250,7 +250,7 @@ _splitcoef(p):= block(
     [inflag:true,c,base,expt,r,spl],
     /* single rational number */
     if ratnump(p) then return([p,1]),
-    p: rootscontract(p),
+    p: _sqrtcontract(p),
     /*  single power that can be read as a sqrt
         e.g. 5^(13/2) -> [5^13, sqrt(5)]
              2^(-3/2) -> [1/4, sqrt(2)] */
