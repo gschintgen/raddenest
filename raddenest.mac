@@ -489,7 +489,6 @@ _raddenest0(expr):= block(
     elseif not atom(expr) and op(expr)="^"
     /* try Cardano polynomials for (a+b*sqrt(r))^(m/n) */
         and ratnump(ex:args(expr)[2])
-        and ex>0
         and not atom(radicand:args(expr)[1])
         and op(radicand)="+"
         and length(ar:args(radicand))=2
